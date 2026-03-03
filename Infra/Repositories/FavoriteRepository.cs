@@ -49,6 +49,12 @@ namespace APIPokemon.Infra.Repositories
             {
                 return false;
             }
+
+            var favorite_exists = await _context.Favorites.Where(u => u.user_id == favorite.user_id).FirstOrDefaultAsync(f => f.databasepokemon_id == favorite.databasepokemon_id);
+            if (favorite_exists != null)
+            {
+                return false;
+            }
             _context.Favorites.Add(favorite);
             _context.SaveChanges();
             return true;

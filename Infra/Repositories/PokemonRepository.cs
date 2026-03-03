@@ -72,10 +72,17 @@ namespace APIPokemon.Infra.Repositories
                 photo = p.photo
             }).Where(p => p.name.Contains(name)).ToListAsync();
         }
-        public void AddPokemon(Pokemon pokemon)
+        public async Task<bool> AddPokemon(Pokemon pokemon)
         {
+            var pokemon_exists = _context.Pokemons.FirstOrDefault(p => p.pokemon_id == pokemon.pokemon_id);
+
+            if (pokemon_exists != null)
+            {
+                return false;
+            }
             _context.Pokemons.Add(pokemon);
             _context.SaveChanges();
+            return true;
         }
         public void UpdatePokemon(Pokemon pokemon)
         {

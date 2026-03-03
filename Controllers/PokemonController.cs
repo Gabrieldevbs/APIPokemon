@@ -52,7 +52,7 @@ namespace APIPokemon.Controllers
 
         [Authorize]
         [HttpPost]
-        public IActionResult AddPokemon([FromForm] PokemonModelView pokemon)
+        public async Task<IActionResult> AddPokemon([FromForm] PokemonModelView pokemon)
         {
             var extension = Path.GetExtension(pokemon.photo.FileName).ToLower();
 
@@ -71,8 +71,7 @@ namespace APIPokemon.Controllers
                 pokemon.atk, pokemon.def, pokemon.satk, pokemon.sdef,
                 pokemon.spd, pokemon.region, path
             );
-            _pokemonRepository.AddPokemon(existingPokemon);
-            return Ok();
+            return await _pokemonRepository.AddPokemon(existingPokemon) != false ? Ok("Pokemon adicionado com sucesso!") : BadRequest("Erro ao adicionar pokemon");  
         }
 
         [Authorize]

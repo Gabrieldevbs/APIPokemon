@@ -8,7 +8,7 @@ namespace APIPokemon.Application.Interfaces
         Task<List<PokemonDTO>> GetAllPokemons();
         Task<List<PokemonDTO>> GetPokemonById(int id);
         Task<List<PokemonDTO>> GetPokemonByName(string name);
-        void AddPokemon(Pokemon pokemon);
+        Task<bool> AddPokemon(Pokemon pokemon);
         void UpdatePokemon(Pokemon pokemon);
         Task<bool> DeletePokemon(int id);
 
