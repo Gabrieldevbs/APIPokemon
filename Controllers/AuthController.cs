@@ -17,17 +17,17 @@ namespace APIPokemon.Controllers
         }
 
         [HttpPost]
-        public IActionResult Auth(string username, string password)
+        public async Task<IActionResult> Auth(string username, string password)
         {
-            var user = _userRepository.GetUser(username, password);
+            var user = await _userRepository.GetUser(username, password);
 
             if (user != null)
             {
                 var token = _tokenService.GenerateToken(user);
-                return Ok(token);
+                return Ok("Seu token: " + token);
             }
 
-            return Unauthorized("Error");
+            return Unauthorized("Seu username ou senha não conferem!");
 
         }
     }

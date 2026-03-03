@@ -18,7 +18,6 @@ namespace APIPokemon.Controllers
             _userRepository = userRepository;
         }
 
-        [Authorize]
         [HttpPost]
         public IActionResult AddUser([FromForm] UserModelView userview)
         {
@@ -27,31 +26,36 @@ namespace APIPokemon.Controllers
             );
 
             _userRepository.AddUser(user);
-            return Ok();
+            return Ok("User criado com sucesso!");
         }
 
         [Authorize]
         [HttpGet]
-        public IActionResult GetAllUsers()
+        public async Task<IActionResult> GetAllUsers()
         {
-            return _userRepository.GetAllUsers() != null ? Ok(_userRepository.GetAllUsers()) : NotFound("Nenhum User encontrado");
+            return await _userRepository.GetAllUsers() != null ? Ok(await _userRepository.GetAllUsers()) : NotFound("Nenhum User encontrado");
         }
 
         [Authorize]
         [HttpDelete]
-        public IActionResult DeleteUser(int id)
+        public async Task<IActionResult> DeleteUser(int id)
         {
-            var user = _userRepository.GetUserById(id);
+            var user = await _userRepository.GetUserById(id);
             var userName = user?.username;
-            return _userRepository.DeleteUser(id) != false ? Ok(userName + " foi deletado com sucesso") : NotFound("Nenhum User encontrado com esse ID para deletar");
+            return await _userRepository.DeleteUser(id) != false ? Ok(userName + " foi deletado com sucesso") : NotFound("Nenhum User encontrado com esse ID para deletar");
         }
 
         [Authorize]
         [HttpPut]
-        public IActionResult UpdateUser([FromForm] User user)
+        public async Task<IActionResult> UpdateUser([FromForm] User user)
         {
+            var user_is_valid = await _userRepository.GetUserById(user.user_id);
+            if (user_is_valid == null)
+            {
+                return NotFound("Nenhum User encontrado com esse ID para atualizar");
+            }
             _userRepository.UpdateUser(user);
-            return Ok();
+            return Ok("Usuário foi atualizado");
         }
 
         [Authorize]

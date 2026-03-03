@@ -8,13 +8,13 @@ namespace APIPokemon.Domain.Model
     {
         [Key]
         public int id { get; private set; }
-        public int pokemon_id { get; private set; }
+        public int databasepokemon_id { get; private set; }
         public int user_id { get; private set; }
 
         public Favorite() { }
-        public Favorite(int pokemon_Id, int user_Id)
+        public Favorite(int databasepokemon_id, int user_Id)
         {
-            this.pokemon_id = pokemon_Id;
+            this.databasepokemon_id = databasepokemon_id;
             this.user_id = user_Id;
         }
     }

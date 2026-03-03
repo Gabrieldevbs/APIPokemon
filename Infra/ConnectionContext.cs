@@ -1,4 +1,5 @@
 ﻿using APIPokemon.Domain.Model;
+using APIPokemon.Domain.DTOs;
 using APIPokemon.Infra.Settings;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;

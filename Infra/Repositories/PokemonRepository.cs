@@ -1,6 +1,8 @@
 ﻿using APIPokemon.Domain.Model;
 using APIPokemon.Domain.DTOs;
 using APIPokemon.Application.Interfaces;
+using Microsoft.EntityFrameworkCore;
+using System.Runtime.CompilerServices;
 
 namespace APIPokemon.Infra.Repositories
 {
@@ -13,10 +15,11 @@ namespace APIPokemon.Infra.Repositories
             _context = context;
         }
 
-        public List<PokemonDTO> GetAllPokemons()
+        public async Task<List<PokemonDTO>> GetAllPokemons()
         {
-            return _context.Pokemons.Select(p => new PokemonDTO()
+            return await _context.Pokemons.Select(p => new PokemonDTO()
             {
+                databasepokemon_id = p.databasepokemon_id,
                 pokemon_id = p.pokemon_id,
                 name = p.name,
                 type1 = p.type1,
@@ -29,12 +32,13 @@ namespace APIPokemon.Infra.Repositories
                 spd = p.spd,
                 region = p.region,
                 photo = p.photo
-            }).ToList();
+            }).ToListAsync();
         }
-        public List<PokemonDTO> GetPokemonById(int id)
+        public async Task<List<PokemonDTO>> GetPokemonById(int id)
         {
-            return _context.Pokemons.Select(p => new PokemonDTO()
+            return await _context.Pokemons.Select(p => new PokemonDTO()
             {
+                databasepokemon_id = p.databasepokemon_id,
                 pokemon_id = p.pokemon_id,
                 name = p.name,
                 type1 = p.type1,
@@ -47,12 +51,13 @@ namespace APIPokemon.Infra.Repositories
                 spd = p.spd,
                 region = p.region,
                 photo = p.photo
-            }).Where(p => p.pokemon_id == id).ToList();
+            }).Where(p => p.pokemon_id == id).ToListAsync();
         }
-        public List<PokemonDTO> GetPokemonByName(string name)
+        public async Task<List<PokemonDTO>> GetPokemonByName(string name)
         {
-            return _context.Pokemons.Select(p => new PokemonDTO()
+            return await _context.Pokemons.Select(p => new PokemonDTO()
             {
+                databasepokemon_id = p.databasepokemon_id,
                 pokemon_id = p.pokemon_id,
                 name = p.name,
                 type1 = p.type1,
@@ -65,7 +70,7 @@ namespace APIPokemon.Infra.Repositories
                 spd = p.spd,
                 region = p.region,
                 photo = p.photo
-            }).Where(p => p.name == name).ToList();
+            }).Where(p => p.name.Contains(name)).ToListAsync();
         }
         public void AddPokemon(Pokemon pokemon)
         {
@@ -74,12 +79,12 @@ namespace APIPokemon.Infra.Repositories
         }
         public void UpdatePokemon(Pokemon pokemon)
         {
-            _context.Pokemons.Update(_context.Pokemons.FirstOrDefault(p => p.pokemon_id == pokemon.pokemon_id));
+            _context.Pokemons.Update(pokemon);
             _context.SaveChanges();
         }
-        public bool DeletePokemon(int id)
+        public async Task<bool> DeletePokemon(int id)
         {   
-            if (_context.Pokemons.FirstOrDefault(p => p.pokemon_id == id) == null)
+            if (_context.Pokemons.FirstOrDefault(p => p.databasepokemon_id == id) == null)
             {
                 return false;
             }
@@ -88,9 +93,9 @@ namespace APIPokemon.Infra.Repositories
             return true;
         }
 
-        public Pokemon? DownloadPhoto(int id)
+        public async Task<Pokemon> DownloadPhoto(int id)
         {
-            var pokemon = _context.Pokemons.FirstOrDefault(p => p.pokemon_id == id);
+            var pokemon = await _context.Pokemons.FirstOrDefaultAsync(p => p.pokemon_id == id);
             if (pokemon == null || pokemon.photo == null)
             {
                 return null;

@@ -1,7 +1,10 @@
-﻿namespace APIPokemon.Domain.DTOs
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace APIPokemon.Domain.DTOs
 {
     public class PokemonDTO
     {
+        public int databasepokemon_id { get; set; }
         public int pokemon_id { get; set; }
         public string name { get; set; }
         public string type1 { get; set; }
@@ -13,7 +16,7 @@
         public int sdef { get; set; }
         public int spd { get; set; }
         public string region { get; set; }
-        public string? photo { get; set; }
+        public string photo { get; set; }
 
     }
 }

@@ -3,7 +3,7 @@
     public class FavoriteDTO
     {
         public int id { get; set; }
-        public int pokemon_id { get; set; }
+        public int databasepokemon_id { get; set; }
         public int user_id { get; set; }
     }
 }

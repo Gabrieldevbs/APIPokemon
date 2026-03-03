@@ -1,6 +1,7 @@
 ﻿using APIPokemon.Domain.DTOs;
 using APIPokemon.Domain.Model;
 using APIPokemon.Application.Interfaces;
+using Microsoft.EntityFrameworkCore;
 namespace APIPokemon.Infra.Repositories
 {
     public class UserRepository : IUserRepository
@@ -12,14 +13,14 @@ namespace APIPokemon.Infra.Repositories
             _context = context;
         }
 
-        public List<UsersDTO> GetAllUsers()
+        public async Task<List<UsersDTO>> GetAllUsers()
         {
-            return _context.Users.Select(u => new UsersDTO() { user_id = u.user_id, username = u.username}).ToList();
+            return await _context.Users.Select(u => new UsersDTO() { user_id = u.user_id, username = u.username}).ToListAsync();
         }
 
-        public UsersDTO GetUserById(int id)
+        public async Task<UsersDTO> GetUserById(int id)
         {
-            return _context.Users.Select(u => new UsersDTO() { user_id = u.user_id, username = u.username }).FirstOrDefault(u => u.user_id == id);
+            return await _context.Users.Select(u => new UsersDTO() { user_id = u.user_id, username = u.username }).FirstOrDefaultAsync(u => u.user_id == id);
         }
 
         public void AddUser(User user)
@@ -30,8 +31,9 @@ namespace APIPokemon.Infra.Repositories
         public void UpdateUser(User user)
         {
             _context.Users.Update(user);
+            _context.SaveChanges();
         }
-        public bool DeleteUser(int id)
+        public async Task<bool> DeleteUser(int id)
         {
             if (_context.Users.FirstOrDefault(u => u.user_id == id) == null)
             {
@@ -42,11 +44,11 @@ namespace APIPokemon.Infra.Repositories
             return true;
         }
 
-        public User GetUser(string username, string password)
+        public async Task<User> GetUser(string username, string password)
         {
             var password_crypto = new CriptoPassword();
             var criptopass = password_crypto.GetHashPassword(password);
-            return _context.Users.FirstOrDefault(u => u.username == username && u.password == criptopass);
+            return await _context.Users.FirstOrDefaultAsync(u => u.username == username && u.password == criptopass);
             
         }
     }

@@ -2,6 +2,7 @@
 {
     public class PokemonModelView
     {
+        public int pokemon_id { get; set; }
         public string name { get; set; }
         public string type1 { get; set; }
         public string? type2 { get; set; }

@@ -1,8 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using APIPokemon.Domain.Model;
-using APIPokemon.Application.Interfaces;
-using Microsoft.AspNetCore.Authorization;
+﻿using APIPokemon.Application.Interfaces;
 using APIPokemon.Application.ModelViews;
+using APIPokemon.Domain.DTOs;
+using APIPokemon.Domain.Model;
+using APIPokemon.Infra.Repositories;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace APIPokemon.Controllers
 {
@@ -18,46 +20,53 @@ namespace APIPokemon.Controllers
 
         [Authorize]
         [HttpGet]
-        public IActionResult GetAllPokemon()
+        public async Task<IActionResult> GetAllPokemon()
         {
-            return _pokemonRepository.GetAllPokemons() != null ? Ok(_pokemonRepository.GetAllPokemons()) : NotFound("Nenhum pokemon encontrado");
+            return await _pokemonRepository.GetAllPokemons() != null ? Ok(await _pokemonRepository.GetAllPokemons()) : NotFound("Nenhum pokemon encontrado");
         }
 
         [Authorize]
         [HttpGet]
-        [Route("id")]
-        public IActionResult GetPokemon(int id)
+        [Route("{pokemon_id}")]
+        public async Task<IActionResult> GetPokemon(int pokemon_id)
         {
-            return _pokemonRepository.GetPokemonById(id) != null ? Ok(_pokemonRepository.GetPokemonById(id)) : NotFound("Nenhum pokemon com esse ID encontrado");
+            return await _pokemonRepository.GetPokemonById(pokemon_id) != null ? Ok(await _pokemonRepository.GetPokemonById(pokemon_id)) : NotFound("Nenhum pokemon com esse ID encontrado");
         }
 
         [Authorize]
         [HttpGet]
         [Route("name")]
-        public IActionResult GetPokemonByName(string name)
+        public async Task<IActionResult> GetPokemonByName(string name)
         {
-            return _pokemonRepository.GetPokemonByName(name) != null ? Ok(_pokemonRepository.GetPokemonByName(name)) : NotFound("Nenhum pokemon com esse nome encontrado");
+            return await _pokemonRepository.GetPokemonByName(name) != null ? Ok(await _pokemonRepository.GetPokemonByName(name)) : NotFound("Nenhum pokemon com esse nome encontrado");
         }
 
         [Authorize]
         [HttpDelete]
-        public IActionResult DeletePokemon(int id)
+        public async Task<IActionResult> DeletePokemon(int pokemon_id)
         {
-            var pokemon = _pokemonRepository.GetPokemonById(id);
+            var pokemon = await _pokemonRepository.GetPokemonById(pokemon_id);
             var pokemonName = pokemon.FirstOrDefault()?.name;
-            return _pokemonRepository.DeletePokemon(id) != false ? Ok(pokemonName + " foi deletado com sucesso!") : NotFound("Nenhum pokemon com esse ID encontrado");
+            return await _pokemonRepository.DeletePokemon(pokemon_id) != false ? Ok(pokemonName + " foi deletado com sucesso!") : NotFound("Nenhum pokemon com esse ID encontrado");
         }
 
         [Authorize]
         [HttpPost]
         public IActionResult AddPokemon([FromForm] PokemonModelView pokemon)
         {
+            var extension = Path.GetExtension(pokemon.photo.FileName).ToLower();
+
+            if (extension != ".png")
+            {
+                return BadRequest("Apenas arquivos .png são permitidos.");
+            }
+    
             var path = Path.Combine("Storage", pokemon.photo.FileName);
 
             using var stream = new FileStream(path, FileMode.Create);
 
             pokemon.photo.CopyTo(stream);
-            var existingPokemon = new Pokemon(
+            var existingPokemon = new Pokemon(pokemon.pokemon_id,
                 pokemon.name, pokemon.type1, pokemon.type2, pokemon.hp,
                 pokemon.atk, pokemon.def, pokemon.satk, pokemon.sdef,
                 pokemon.spd, pokemon.region, path
@@ -68,10 +77,10 @@ namespace APIPokemon.Controllers
 
         [Authorize]
         [HttpPost]
-        [Route("{id}/download")]
-        public IActionResult DownloadPhoto(int id)
+        [Route("{pokemon_id}/download")]
+        public async Task<IActionResult> DownloadPhoto(int pokemon_id)
         {
-            var pokemon = _pokemonRepository.DownloadPhoto(id);
+            var pokemon = await _pokemonRepository.DownloadPhoto(pokemon_id);
             if (pokemon == null || pokemon.photo == null)
             {
                 return NotFound("Nenhum pokemon com esse ID encontrado ou o pokemon não possui foto");
@@ -84,10 +93,10 @@ namespace APIPokemon.Controllers
 
         [Authorize]
         [HttpPost]
-        [Route("{id}/show")]
-        public IActionResult ShowPhoto(int id)
+        [Route("{pokemon_id}/show")]
+        public async Task<IActionResult> ShowPhoto(int pokemon_id)
         {
-            var pokemon = _pokemonRepository.DownloadPhoto(id);
+            var pokemon = await _pokemonRepository.DownloadPhoto(pokemon_id);
             if (pokemon == null || pokemon.photo == null)
             {
                 return NotFound("Nenhum pokemon com esse ID encontrado ou o pokemon não possui foto");
@@ -96,6 +105,19 @@ namespace APIPokemon.Controllers
             var fileName = Path.GetFileName(filePath);
             var fileBytes = System.IO.File.ReadAllBytes(filePath);
             return File(fileBytes, "image/png");
+        }
+
+        [Authorize]
+        [HttpPut]
+        public async Task<IActionResult> UpdatePokemon([FromForm] Pokemon pokemon)
+        {
+            var pokemon_is_valid = await _pokemonRepository.GetPokemonById(pokemon.pokemon_id);
+            if (pokemon_is_valid == null)
+            {
+                return NotFound("Nenhum Pokemon encontrado com esse ID para atualizar");
+            }
+            _pokemonRepository.UpdatePokemon(pokemon);
+            return Ok("Usuário foi atualizado");
         }
     }
 }

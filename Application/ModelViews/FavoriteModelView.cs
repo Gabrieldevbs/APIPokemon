@@ -2,6 +2,6 @@
 {
     public class FavoriteModelView
     {
-        public int pokemon_id { get; set; }
+        public int databasepokemon_id { get; set; }
     }
 }

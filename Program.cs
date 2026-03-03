@@ -59,6 +59,14 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+builder.Services.AddCors(options => {     options.AddPolicy("AllowAll", builder =>
+    {
+        builder.AllowAnyOrigin()
+               .AllowAnyMethod()
+               .AllowAnyHeader();
+    });
+});
+
 builder.Services.AddSwaggerGen(options =>
 {
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
@@ -97,6 +105,7 @@ app.UseAuthentication();
 
 app.UseAuthorization();
 
+app.UseCors("AllowAll");
 
 app.MapControllers();
 

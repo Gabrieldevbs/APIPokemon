@@ -5,12 +5,12 @@ namespace APIPokemon.Application.Interfaces
 {
     public interface IUserRepository
     {
-            List<UsersDTO> GetAllUsers();
-            UsersDTO GetUserById(int id);
+            Task<List<UsersDTO>> GetAllUsers();
+            Task<UsersDTO> GetUserById(int id);
             void AddUser(User user);
             void UpdateUser(User user);
-            bool DeleteUser(int id);
-            User GetUser(string username, string password);
+            Task<bool> DeleteUser(int id);
+            Task<User> GetUser(string username, string password);
 
     }
 }
