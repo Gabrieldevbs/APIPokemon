@@ -30,6 +30,9 @@ namespace APIPokemon.Controllers
         [Route("{pokemon_id}")]
         public async Task<IActionResult> GetPokemon(int pokemon_id)
         {
+            if (pokemon_id == null) { 
+                return NotFound("Digite o ID do pokemon.");
+            }
             return await _pokemonRepository.GetPokemonById(pokemon_id) != null ? Ok(await _pokemonRepository.GetPokemonById(pokemon_id)) : NotFound("Nenhum pokemon com esse ID encontrado");
         }
 
@@ -38,6 +41,10 @@ namespace APIPokemon.Controllers
         [Route("name")]
         public async Task<IActionResult> GetPokemonByName(string name)
         {
+            if (name == null)
+            {
+                return NotFound("Digite o nome do pokemon.");
+            }
             return await _pokemonRepository.GetPokemonByName(name) != null ? Ok(await _pokemonRepository.GetPokemonByName(name)) : NotFound("Nenhum pokemon com esse nome encontrado");
         }
 
@@ -45,6 +52,10 @@ namespace APIPokemon.Controllers
         [HttpDelete]
         public async Task<IActionResult> DeletePokemon(int pokemon_id)
         {
+            if (pokemon_id == null)
+            {
+                return NotFound("Digite o ID do pokemon.");
+            }
             var pokemon = await _pokemonRepository.GetPokemonById(pokemon_id);
             var pokemonName = pokemon.FirstOrDefault()?.name;
             return await _pokemonRepository.DeletePokemon(pokemon_id) != false ? Ok(pokemonName + " foi deletado com sucesso!") : NotFound("Nenhum pokemon com esse ID encontrado");
@@ -79,6 +90,10 @@ namespace APIPokemon.Controllers
         [Route("{pokemon_id}/download")]
         public async Task<IActionResult> DownloadPhoto(int pokemon_id)
         {
+            if (pokemon_id == null)
+            {
+                return NotFound("Digite o ID do pokemon.");
+            }
             var pokemon = await _pokemonRepository.DownloadPhoto(pokemon_id);
             if (pokemon == null || pokemon.photo == null)
             {
@@ -95,6 +110,10 @@ namespace APIPokemon.Controllers
         [Route("{pokemon_id}/show")]
         public async Task<IActionResult> ShowPhoto(int pokemon_id)
         {
+            if (pokemon_id == null)
+            {
+                return NotFound("Digite o ID do pokemon.");
+            }
             var pokemon = await _pokemonRepository.DownloadPhoto(pokemon_id);
             if (pokemon == null || pokemon.photo == null)
             {

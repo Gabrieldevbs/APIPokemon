@@ -1,8 +1,9 @@
-﻿using APIPokemon.Application.ModelViews;
+﻿using APIPokemon.Application.Interfaces;
+using APIPokemon.Application.ModelViews;
 using APIPokemon.Domain.Model;
-using APIPokemon.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Xml.Linq;
 
 namespace APIPokemon.Controllers
 {
@@ -42,6 +43,10 @@ namespace APIPokemon.Controllers
         [Route("Name")]
         public async Task<IActionResult> FavoritebyName(string name)
         {
+            if (name == null)
+            {
+                return NotFound("Digite o nome.");
+            }
             var user_id = int.Parse(User.FindFirst("id")?.Value);
             var favorites = await _favoriteRepository.GetFavoriteByName(user_id, name);
             if (favorites == null)
@@ -55,10 +60,19 @@ namespace APIPokemon.Controllers
         [HttpDelete]
         public async Task<IActionResult> DeleteFavorite(int pokemon_id)
         {
+            if (pokemon_id == null)
+            {
+                return NotFound("Digite o ID.");
+            }
             var user_id = int.Parse(User.FindFirst("id")?.Value);
             var pokemon = await _pokemonRepository.GetPokemonById(pokemon_id);
-            var pokemonName = pokemon.FirstOrDefault()?.name;
-            return await _favoriteRepository.DeleteFavorite(user_id, pokemon_id) != false ? Ok(pokemonName + " foi deletado dos favoritos com sucesso!") : NotFound("Nenhum pokemon com esse ID encontrado nos favoritos");
+            if (pokemon == null)
+            {
+                return NotFound("Nenhum pokemon com esse ID encontrado");
+            }
+            var pokemonName = pokemon.FirstOrDefault().name;
+            var database_id_pokemon = pokemon.FirstOrDefault().databasepokemon_id;
+            return await _favoriteRepository.DeleteFavorite(user_id, database_id_pokemon) != false ? Ok(pokemonName + " foi deletado dos favoritos com sucesso!") : NotFound("Nenhum pokemon com esse ID encontrado nos favoritos");
 
         }
     }

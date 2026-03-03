@@ -1,9 +1,10 @@
-﻿using APIPokemon.Application.ModelViews;
+﻿using APIPokemon.Application.Interfaces;
+using APIPokemon.Application.ModelViews;
 using APIPokemon.Domain.Model;
-using APIPokemon.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using System.Xml.Linq;
 
 namespace APIPokemon.Controllers
 {
@@ -40,6 +41,10 @@ namespace APIPokemon.Controllers
         [HttpDelete]
         public async Task<IActionResult> DeleteUser(int id)
         {
+            if (id == null)
+            {
+                return NotFound("Digite o id do User.");
+            }
             var user = await _userRepository.GetUserById(id);
             var userName = user?.username;
             return await _userRepository.DeleteUser(id) != false ? Ok(userName + " foi deletado com sucesso") : NotFound("Nenhum User encontrado com esse ID para deletar");

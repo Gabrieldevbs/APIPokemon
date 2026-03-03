@@ -24,17 +24,18 @@ namespace APIPokemon.Infra.Repositories
         }
         public async Task<List<FavoriteDTO>> GetFavoriteByName(int user_id, string name)
         {
-            if (_context.Pokemons.FirstOrDefault(p => p.name == name) == null)
+            if (_context.Pokemons.FirstOrDefault(p => p.name == (name)) == null)
             {
                 return null;
             }
 
-            var id_pokemon = _context.Pokemons.FirstOrDefault(p => p.name.Contains(name)).pokemon_id;
+            var id_pokemon = _context.Pokemons.FirstOrDefault(p => p.name == (name)).databasepokemon_id;
 
             if (_context.Favorites.Where(u => u.user_id == user_id).FirstOrDefault(f => f.databasepokemon_id == id_pokemon) == null)
             {
                 return null;
             }
+
             return await _context.Favorites.Select(f => new FavoriteDTO() {  
                 id = f.id, 
                 user_id = f.user_id,
