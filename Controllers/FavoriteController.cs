@@ -24,7 +24,13 @@ namespace APIPokemon.Controllers
         [HttpPost]
         public async Task<IActionResult> AddFavorite([FromForm]FavoriteModelView favoriteModelView)
         {
-            var favorite = new Favorite(favoriteModelView.databasepokemon_id, int.Parse(User.FindFirst("id")?.Value));
+            if (favoriteModelView.pokemon_id == null || await _pokemonRepository.GetPokemonById(favoriteModelView.pokemon_id) == null)
+            {
+                return NotFound("Pokemon não encontrado.");
+            }
+            var favorite_pokemon = await _pokemonRepository.GetPokemonById(favoriteModelView.pokemon_id);
+            var pokemon_database_id = favorite_pokemon.FirstOrDefault().databasepokemon_id;
+            var favorite = new Favorite(pokemon_database_id, int.Parse(User.FindFirst("id")?.Value));
             return await _favoriteRepository.AddFavorite(favorite) != false ? Ok("Pokemon adicionado aos favoritos com sucesso!") : BadRequest("Erro ao adicionar pokemon aos favoritos!");
             
         }
